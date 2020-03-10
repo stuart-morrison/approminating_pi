@@ -47,7 +47,6 @@ function init () {
   
     // Initialise the dots
     blocks_within();
-    blocks_without();
     draw_circle();
 
     document.getElementById('pi_calc_lower').innerHTML = calculate_pi_bottom()
@@ -101,10 +100,11 @@ function blocks_within() {
 
     // Set the number of blocks in the circle to zero
     number_within = 0
+    number_without = 0
 
-    x_start = centre_x  - Math.floor(global_radius / block_size) * block_size;
+    x_start = centre_x  - (Math.floor(global_radius / block_size) + 1) * block_size;
     x_end = centre_x + Math.floor(global_radius / block_size) * block_size;
-    y_start = centre_y - Math.floor(global_radius / block_size) * block_size;
+    y_start = centre_y - (Math.floor(global_radius / block_size) + 1) * block_size;
     y_end = centre_y + Math.floor(global_radius / block_size) * block_size;
     
     for (i = x_start; i <= x_end; i += block_size) {
@@ -128,50 +128,18 @@ function blocks_within() {
             ((x_q4_sq + y_q4_sq) ** 0.5 <= global_radius)) {
                 fill_block_in(i, j);
                 number_within += 1;
-            }
-        }
-    }
-}
-
-function blocks_without() {
-
-    // Set the number of blocks in the circle to zero
-    number_without = 0
-
-    x_start = centre_x  - Math.floor(global_radius / block_size) * (block_size + 1);
-    x_end = centre_x + Math.floor(global_radius / block_size) * (block_size + 1);
-    y_start = centre_y - Math.floor(global_radius / block_size) * (block_size + 1);
-    y_end = centre_y + Math.floor(global_radius / block_size) * (block_size + 1);
-    
-    for (i = x_start; i <= x_end; i += block_size) {
-        for (j = y_start; j <= y_end; j += block_size) {
-
-            x_q1_sq = (i - centre_x + block_size) ** 2
-            y_q1_sq = (j - centre_y) ** 2
-
-            x_q2_sq = (i - centre_x) ** 2
-            y_q2_sq = (j - centre_y) ** 2
-
-            x_q3_sq = (i - centre_x) ** 2
-            y_q3_sq = (j - centre_y + block_size) ** 2
-
-            x_q4_sq = (i - centre_x + block_size) ** 2
-            y_q4_sq = (j - centre_y + block_size) ** 2
-
-            if ((((x_q1_sq + y_q1_sq) ** 0.5 > global_radius) |
-            ((x_q2_sq + y_q2_sq) ** 0.5 > global_radius) |
-            ((x_q3_sq + y_q3_sq) ** 0.5 > global_radius) |
-            ((x_q4_sq + y_q4_sq) ** 0.5 > global_radius)) &
-            (((x_q1_sq + y_q1_sq) ** 0.5 <= (global_radius + (2 * block_size ** 2) ** 0.5 )) &
-            ((x_q2_sq + y_q2_sq) ** 0.5 <= (global_radius + (2 * block_size ** 2) ** 0.5 )) &
-            ((x_q3_sq + y_q3_sq) ** 0.5 <= (global_radius + (2 * block_size ** 2) ** 0.5 )) &
-            ((x_q4_sq + y_q4_sq) ** 0.5 <= (global_radius + (2 * block_size ** 2) ** 0.5 )))) {
+            } else if (((x_q1_sq + y_q1_sq) ** 0.5 <= global_radius) |
+            ((x_q2_sq + y_q2_sq) ** 0.5 <= global_radius) |
+            ((x_q3_sq + y_q3_sq) ** 0.5 <= global_radius) |
+            ((x_q4_sq + y_q4_sq) ** 0.5 <= global_radius)){
                 fill_block_out(i, j);
-                number_without += 1;
+                number_without += 1
+
             }
         }
     }
 }
+
 
 function calculate_pi_bottom() {
     pi = (number_within * (block_size ** 2)) / (global_radius ** 2)
@@ -196,7 +164,6 @@ document.getElementById('box').onchange = function() {
 function update_draw() {
     ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
     blocks_within();
-    blocks_without();
     draw_circle();
     document.getElementById('pi_calc_lower').innerHTML = calculate_pi_bottom()
     document.getElementById('pi_calc_upper').innerHTML = calculate_pi_upper()
