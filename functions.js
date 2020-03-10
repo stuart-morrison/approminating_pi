@@ -1,4 +1,4 @@
-let canvas, ctx, page_width, page_height, global_radius, block_size, number_within, pi, circle_slide, box_slide
+let canvas, ctx, page_width, page_height, global_radius, block_size, number_within, number_without, pi, circle_slide, box_slide, centre_x, centre_y
 
 // Function to get the window width
 function get_width() {
@@ -31,7 +31,9 @@ function init () {
     // Get page width and so, dot radius
     page_width = get_width();
     page_height = get_height();
-    global_radius = (page_width + page_height) / 15;
+    centre_x = Math.floor(page_width / 2);
+    centre_y = Math.floor(page_height / 2);
+    global_radius = Math.floor((page_width + page_height) / 15);
     block_size = 10;
 
     document.getElementById('circle').value = global_radius
@@ -45,9 +47,11 @@ function init () {
   
     // Initialise the dots
     blocks_within();
+    blocks_without();
     draw_circle();
 
-    document.getElementById('pi_calc').innerHTML = calculate_pi()
+    document.getElementById('pi_calc_lower').innerHTML = calculate_pi_bottom()
+    document.getElementById('pi_calc_upper').innerHTML = calculate_pi_upper()
     
 }
 
@@ -56,22 +60,35 @@ function init () {
 function draw_circle() {
     // Draw a circle path and fill
     ctx.beginPath()
-    ctx.arc(page_width / 2, page_height / 2, global_radius, 0, 2 * Math.PI, false) 
+    ctx.arc(centre_x, centre_y, global_radius, 0, 2 * Math.PI, false) 
     ctx.lineWidth = 3;
     ctx.stroke()
     ctx.restore()
   
 }
 
-function fill_block(x, y) {
+function fill_block_in(x, y) {
 
     selection = ["#E1BD6D", "#EABE94", "#0B775E", "#35274A", "#F2300F"][random_int(5)]
 
     ctx.beginPath()
-    ctx.rect(x - (block_size / 2), y - (block_size / 2), block_size, block_size)
+    ctx.rect(x, y, block_size, block_size)
     ctx.fillStyle = selection;
     ctx.fill()
-    ctx.lineWidth = 0.3;
+    ctx.lineWidth = 0.2;
+    ctx.stroke()
+    ctx.restore()
+}
+
+function fill_block_out(x, y) {
+
+    selection = "#666257"
+
+    ctx.beginPath()
+    ctx.rect(x, y, block_size, block_size)
+    ctx.fillStyle = selection;
+    ctx.fill()
+    ctx.lineWidth = 0.2;
     ctx.stroke()
     ctx.restore()
 }
@@ -82,27 +99,87 @@ function random_int(max) {
 
 function blocks_within() {
 
+    // Set the number of blocks in the circle to zero
     number_within = 0
 
-    x_start = (page_width / 2) - Math.floor(global_radius / block_size) * block_size;
-    x_end = (page_width / 2) + Math.floor(global_radius / block_size) * block_size;
-
-    y_start = (page_height / 2) - Math.floor(global_radius / block_size) * block_size;
-    y_end = (page_height / 2) + Math.floor(global_radius / block_size) * block_size;
-
+    x_start = centre_x  - Math.floor(global_radius / block_size) * block_size;
+    x_end = centre_x + Math.floor(global_radius / block_size) * block_size;
+    y_start = centre_y - Math.floor(global_radius / block_size) * block_size;
+    y_end = centre_y + Math.floor(global_radius / block_size) * block_size;
+    
     for (i = x_start; i <= x_end; i += block_size) {
         for (j = y_start; j <= y_end; j += block_size) {
 
-            if ((((((i - page_width / 2) ** 2) + (j - page_height / 2) ** 2) ** 0.5) <= global_radius)) {
-                fill_block(i, j);
+            x_q1_sq = (i - centre_x + block_size) ** 2
+            y_q1_sq = (j - centre_y) ** 2
+
+            x_q2_sq = (i - centre_x) ** 2
+            y_q2_sq = (j - centre_y) ** 2
+
+            x_q3_sq = (i - centre_x) ** 2
+            y_q3_sq = (j - centre_y + block_size) ** 2
+
+            x_q4_sq = (i - centre_x + block_size) ** 2
+            y_q4_sq = (j - centre_y + block_size) ** 2
+
+            if (((x_q1_sq + y_q1_sq) ** 0.5 <= global_radius) &
+            ((x_q2_sq + y_q2_sq) ** 0.5 <= global_radius) &
+            ((x_q3_sq + y_q3_sq) ** 0.5 <= global_radius) &
+            ((x_q4_sq + y_q4_sq) ** 0.5 <= global_radius)) {
+                fill_block_in(i, j);
                 number_within += 1;
             }
         }
     }
 }
 
-function calculate_pi() {
+function blocks_without() {
+
+    // Set the number of blocks in the circle to zero
+    number_without = 0
+
+    x_start = centre_x  - Math.floor(global_radius / block_size) * (block_size + 1);
+    x_end = centre_x + Math.floor(global_radius / block_size) * (block_size + 1);
+    y_start = centre_y - Math.floor(global_radius / block_size) * (block_size + 1);
+    y_end = centre_y + Math.floor(global_radius / block_size) * (block_size + 1);
+    
+    for (i = x_start; i <= x_end; i += block_size) {
+        for (j = y_start; j <= y_end; j += block_size) {
+
+            x_q1_sq = (i - centre_x + block_size) ** 2
+            y_q1_sq = (j - centre_y) ** 2
+
+            x_q2_sq = (i - centre_x) ** 2
+            y_q2_sq = (j - centre_y) ** 2
+
+            x_q3_sq = (i - centre_x) ** 2
+            y_q3_sq = (j - centre_y + block_size) ** 2
+
+            x_q4_sq = (i - centre_x + block_size) ** 2
+            y_q4_sq = (j - centre_y + block_size) ** 2
+
+            if ((((x_q1_sq + y_q1_sq) ** 0.5 > global_radius) |
+            ((x_q2_sq + y_q2_sq) ** 0.5 > global_radius) |
+            ((x_q3_sq + y_q3_sq) ** 0.5 > global_radius) |
+            ((x_q4_sq + y_q4_sq) ** 0.5 > global_radius)) &
+            (((x_q1_sq + y_q1_sq) ** 0.5 <= (global_radius + (2 * block_size ** 2) ** 0.5 )) &
+            ((x_q2_sq + y_q2_sq) ** 0.5 <= (global_radius + (2 * block_size ** 2) ** 0.5 )) &
+            ((x_q3_sq + y_q3_sq) ** 0.5 <= (global_radius + (2 * block_size ** 2) ** 0.5 )) &
+            ((x_q4_sq + y_q4_sq) ** 0.5 <= (global_radius + (2 * block_size ** 2) ** 0.5 )))) {
+                fill_block_out(i, j);
+                number_without += 1;
+            }
+        }
+    }
+}
+
+function calculate_pi_bottom() {
     pi = (number_within * (block_size ** 2)) / (global_radius ** 2)
+    return pi
+}
+
+function calculate_pi_upper() {
+    pi = ((number_within + number_without) * (block_size ** 2)) / (global_radius ** 2)
     return pi
 }
 
@@ -119,6 +196,8 @@ document.getElementById('box').onchange = function() {
 function update_draw() {
     ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
     blocks_within();
+    blocks_without();
     draw_circle();
-    document.getElementById('pi_calc').innerHTML = calculate_pi()
+    document.getElementById('pi_calc_lower').innerHTML = calculate_pi_bottom()
+    document.getElementById('pi_calc_upper').innerHTML = calculate_pi_upper()
 }
