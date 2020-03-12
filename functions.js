@@ -30,10 +30,9 @@ function get_height() {
 
 // Listeners for loading and resize
 document.addEventListener('DOMContentLoaded', init)
+window.addEventListener('resize', resize);
 
-// Initialise that bad boi
-function init () {
-
+function resize() {
     // Get page width and so, dot radius
     page_width = get_width();
     page_height = get_height();
@@ -41,35 +40,49 @@ function init () {
     centre_x_box = Math.floor(page_width / 4);
     centre_x_gon = Math.floor(page_width / 4);
     centre_y = Math.floor(page_height / 2);
-
     global_radius_box = Math.floor((page_width + page_height) / 15);
     global_radius_gon = Math.floor((page_width + page_height) / 15);
 
     document.getElementById('box_circle').max = Math.floor(page_width / 5)
     document.getElementById('gon_circle').max = Math.floor(page_width / 5)
 
-    block_size = 10;
-    gon_n = 4;
-
     document.getElementById('box_circle').value = global_radius_box
     document.getElementById('box').value = block_size
 
     document.getElementById('gon_circle').value = global_radius_gon
     document.getElementById('gon').value = gon_n
+
+    ctx_box.canvas.width = Math.floor(window.innerWidth / 2.05);
+    ctx_box.canvas.height = Math.floor(window.innerHeight / 1.05);
+
+
+    ctx_gon.canvas.width = Math.floor(window.innerWidth / 2.05);
+    ctx_gon.canvas.height = Math.floor(window.innerHeight / 1.05);
+
+
+    update_draw("box")   
+    update_draw("gon")
+
+}
+
+// Initialise that bad boi
+function init () {
+
+
+    block_size = 10;
+    gon_n = 4;
+    document.getElementById('polygon_sides').innerText = gon_n + '-sided polygon: '
+
         
     // Identify the canvas
     box_canvas = document.getElementById('box_canvas');
     ctx_box = box_canvas.getContext('2d');
-    ctx_box.canvas.width = Math.floor(window.innerWidth / 2.05);
-    ctx_box.canvas.height = Math.floor(window.innerHeight / 1.05);
 
     gon_canvas = document.getElementById('gon_canvas');
     ctx_gon = gon_canvas.getContext('2d');
-    ctx_gon.canvas.width = Math.floor(window.innerWidth / 2.05);
-    ctx_gon.canvas.height = Math.floor(window.innerHeight / 1.05);
   
-    update_draw("box")   
-    update_draw("gon")
+    resize()
+
 
 }
 
@@ -188,15 +201,12 @@ function draw_gon() {
 
 function draw_gon_outer() {
     
-    internal_angle = Math.PI * (gon_n - 2)
-
-    outer_radius = global_radius_gon / Math.sin(internal_angle / gon_n / 2)
-
+    
     ctx_gon.beginPath();
-    ctx_gon.moveTo (centre_x_gon + outer_radius * Math.cos(0), centre_y +  outer_radius *  Math.sin(0));          
+    ctx_gon.moveTo (centre_x_gon + outer_radius() * Math.cos(0), centre_y +  outer_radius() *  Math.sin(0));          
     
     for (var i = 1; i <= gon_n; i += 1) {
-        ctx_gon.lineTo (centre_x_gon + outer_radius * Math.cos(i * 2 * Math.PI / gon_n), centre_y + outer_radius * Math.sin(i * 2 * Math.PI / gon_n));
+        ctx_gon.lineTo (centre_x_gon + outer_radius() * Math.cos(i * 2 * Math.PI / gon_n), centre_y + outer_radius() * Math.sin(i * 2 * Math.PI / gon_n));
     }
     
     ctx_gon.strokeStyle = "blue";
@@ -216,13 +226,19 @@ function calculate_pi_upper_box() {
 }
 
 function calculate_pi_bottom_gon() {
-    return ((global_radius_gon ** 2) * gon_n * Math.sin(Math.PI * 2 / gon_n)) / 2 / (global_radius_box ** 2)
+    return ((gon_n / 2) * (global_radius_gon ** 2) * Math.sin(2 * Math.PI / gon_n)) / (global_radius_gon ** 2)
+}
+
+function outer_radius() {
+
+    internal_angle = Math.PI * (gon_n - 2)
+    return global_radius_gon / Math.sin(internal_angle / gon_n / 2)
 }
 
 function calculate_pi_upper_gon() {    
 
-    outer_radius = Math.PI * (gon_n - 2) / Math.sin(internal_angle / gon_n / 2)
-    return  ((outer_radius ** 2) * gon_n * Math.sin(Math.PI * 2 / gon_n)) / 2 / (global_radius_box ** 2)
+    return ((gon_n / 2) * (outer_radius() ** 2) * Math.sin(2 * Math.PI / gon_n)) / (global_radius_gon ** 2)
+    
 }
 
 document.getElementById('box_circle').onchange = function() {
@@ -242,6 +258,7 @@ document.getElementById('box').onchange = function() {
 
 document.getElementById('gon').onchange = function() {
     gon_n = parseInt(document.getElementById('gon').value);
+    document.getElementById('polygon_sides').innerText = gon_n + '-sided polygon: '
     update_draw("gon");
 }
 
