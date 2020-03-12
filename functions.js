@@ -49,7 +49,7 @@ function init () {
     document.getElementById('gon_circle').max = Math.floor(page_width / 5)
 
     block_size = 10;
-    gon_n = 12;
+    gon_n = 4;
 
     document.getElementById('box_circle').value = global_radius_box
     document.getElementById('box').value = block_size
@@ -186,6 +186,25 @@ function draw_gon() {
     ctx_gon.stroke();
 }
 
+function draw_gon_outer() {
+    
+    internal_angle = Math.PI * (gon_n - 2)
+
+    outer_radius = global_radius_gon / Math.sin(internal_angle / gon_n / 2)
+
+    ctx_gon.beginPath();
+    ctx_gon.moveTo (centre_x_gon + outer_radius * Math.cos(0), centre_y +  outer_radius *  Math.sin(0));          
+    
+    for (var i = 1; i <= gon_n; i += 1) {
+        ctx_gon.lineTo (centre_x_gon + outer_radius * Math.cos(i * 2 * Math.PI / gon_n), centre_y + outer_radius * Math.sin(i * 2 * Math.PI / gon_n));
+    }
+    
+    ctx_gon.strokeStyle = "blue";
+    ctx_gon.lineWidth = 2;
+    ctx_gon.stroke();
+}
+
+
 function calculate_pi_bottom_box() {
     pi = (number_within * (block_size ** 2)) / (global_radius_box ** 2)
     return pi
@@ -197,11 +216,13 @@ function calculate_pi_upper_box() {
 }
 
 function calculate_pi_bottom_gon() {
-    return Math.PI
+    return ((global_radius_gon ** 2) * gon_n * Math.sin(Math.PI * 2 / gon_n)) / 2 / (global_radius_box ** 2)
 }
 
-function calculate_pi_upper_gon() {
-    return Math.PI
+function calculate_pi_upper_gon() {    
+
+    outer_radius = Math.PI * (gon_n - 2) / Math.sin(internal_angle / gon_n / 2)
+    return  ((outer_radius ** 2) * gon_n * Math.sin(Math.PI * 2 / gon_n)) / 2 / (global_radius_box ** 2)
 }
 
 document.getElementById('box_circle').onchange = function() {
@@ -235,6 +256,7 @@ function update_draw(where) {
         ctx_gon.clearRect(0, 0, ctx_gon.canvas.width, ctx_gon.canvas.height);
         draw_circle(where);
         draw_gon()
+        draw_gon_outer()
         document.getElementById('gon_pi_calc_lower').innerHTML = "Pi approximation lower: " + calculate_pi_bottom_gon().toFixed(4)
         document.getElementById('gon_pi_calc_upper').innerHTML = "Pi approximation upper: " + calculate_pi_upper_gon().toFixed(4)
     }
