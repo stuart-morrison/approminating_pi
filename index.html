@@ -2,7 +2,7 @@
 <html>
   <style>
     #canvas {
-      background: white;
+      background: #dddddd;
       width: 100%;
       height: 100%;
       padding: 0;
@@ -20,31 +20,45 @@
       background: white;
     }
 
-    h1 {
-      font-size: large;
-      
-      
-    }
-
-    .overlay-box {
+    .overlay-box-left {
       position:absolute;
       top:0%;
       left:50%;
       padding: 0;
       margin: 0;
-      width: 100%;
-      transform:translate(-50%, 0%);
+      width: 50%;
+      transform:translate(-100%, 0%);
       font-size: large;
       font-family: 'Jockey One', sans-serif;
       color: white;
       background-color: dimgrey;
     }
 
-    .container {
+    .overlay-box-right {
+      position:absolute;
+      top:0%;
+      left:50%;
       padding: 0;
       margin: 0;
+      width: 50%;
+      transform:translate(0%, 0%);
+      font-size: large;
+      font-family: 'Jockey One', sans-serif;
+      color: white;
+      background-color: dimgrey;
+    }    
+
+    .container {
+      padding: 1;
+      margin: 1;
+      
     }
 
+  table {
+    width: 100%;
+    height: 100%;
+    border-spacing: 5px;
+  }
 
   </style>
 
@@ -55,22 +69,62 @@
 
   <body>
 
-    <div class="overlay-box">
-      <div class="slidecontainer", id="circle_div">
-        Circle radius: <input type="range" min="4" max="500" value="5" class="slider" id="circle"> 
-      </div>
 
-      <div class="slidecontainer", id="circle_div">
-        Block area: <input type="range" min="1" max="50" value="1" class="slider" id="box">
-      </div>
+    <table>
+      <tr>
 
-      Pi approximation lower: <div id="pi_calc_lower"></div>
-      Pi approximation upper: <div id="pi_calc_upper"></div>
-    </div>
+        <th>
 
-    <div class="container">
-      <canvas id="backCanvas"></canvas>
-    </div>
+          <div class="overlay-box-left">
+            <div class="slidecontainer">
+              <label for="box_circle">Circle radius (px): </label>
+              <input type="range" min="4" max="300" value="5" class="slider" id="box_circle"> 
+            </div>
+      
+            <div class="slidecontainer", id="circle_div">
+              <label for="box">Block area (px sq): </label>
+              <input type="range" min="2" max="50" value="1" class="slider" id="box">
+            </div>
+      
+            <div id="box_pi_calc_lower">Pi approximation lower: </div>
+            <div id="box_pi_calc_upper">Pi approximation upper: </div>
+
+          </div>
+          
+          <div class="container">
+            <canvas id="box_canvas"></canvas>
+          </div>
+        
+        </th>
+
+        <th>
+
+          <div class="overlay-box-right">
+
+            <div class="slidecontainer">
+              <label for="gon_circle">Circle radius (px): </label>
+              <input type="range" min="4" max="300" value="5" class="slider" id="gon_circle"> 
+            </div>
+      
+            <div class="slidecontainer", id="circle_div">
+              <label for="gon">Number of polygon sides: </label>
+              <input type="range" min="4" max="96" value="1" class="slider" id="gon">
+            </div>
+      
+            <div id="gon_pi_calc_lower">Pi approximation lower: </div>
+            <div id="gon_pi_calc_upper">Pi approximation upper: </div>
+          </div>
+      
+          <div class="container">
+            <canvas id="gon_canvas"></canvas>
+          </div>
+        
+        </th>      
+
+      </tr>
+
+    </table>
+
       
     <script src="functions.js"></script>
 
